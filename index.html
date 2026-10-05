@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renewable-Aware IoT Task Offloading Digital Twin</title>
+  <meta name="description" content="Interactive system architecture for a Renewable-Aware IoT Task Offloading Digital Twin — visualizing data flow between Renewable, Battery, ESP32, WiFi, Edge Server, and Decision Engine modules." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <div class="logo-icon">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="18" cy="18" r="17" stroke="url(#lg1)" stroke-width="2"/>
+            <path d="M18 6v6M18 24v6M6 18h6M24 18h6" stroke="url(#lg1)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="5" fill="url(#lg1)"/>
+            <defs>
+              <linearGradient id="lg1" x1="6" y1="6" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#34d399"/>
+                <stop offset="1" stop-color="#3b82f6"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-title">Digital Twin</span>
+          <span class="logo-sub">Renewable-Aware IoT Offloading</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <button class="nav-btn active" data-view="architecture" onclick="switchView('architecture')">Architecture</button>
+        <button class="nav-btn" data-view="dataflow" onclick="switchView('dataflow')">Data Flow</button>
+        <button class="nav-btn" data-view="modules" onclick="switchView('modules')">Modules</button>
+      </nav>
+      <div class="header-status">
+        <span class="status-dot"></span>
+        <span class="status-text" id="sim-clock">Sim Time: 00:00 (Step = 1 min)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== MAIN ===== -->
+  <main>
+    <!-- ──── VIEW: ARCHITECTURE ──── -->
+    <section id="view-architecture" class="view active">
+      <div class="section-hero">
+        <h1 class="hero-title">System Architecture</h1>
+        <p class="hero-sub">Six interconnected modules decide whether IoT tasks run locally on ESP32 or get offloaded to the Edge Server based on renewable energy availability.</p>
+      </div>
+
+      <!-- KPI Bar -->
+      <div class="kpi-bar">
+        <div class="kpi-card" id="kpi-solar">
+          <div class="kpi-icon">☀️</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Solar Power</div>
+            <div class="kpi-value" id="kv-solar">0 W</div>
+          </div>
+          <div class="kpi-ring" id="kr-solar"></div>
+        </div>
+        <div class="kpi-card" id="kpi-battery">
+          <div class="kpi-icon">🔋</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Battery SoC</div>
+            <div class="kpi-value" id="kv-battery">0%</div>
+          </div>
+          <div class="kpi-ring" id="kr-battery"></div>
+        </div>
+        <div class="kpi-card" id="kpi-decision">
+          <div class="kpi-icon">⚡</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Decision</div>
+            <div class="kpi-value" id="kv-decision">—</div>
+          </div>
+        </div>
+        <div class="kpi-card" id="kpi-latency">
+          <div class="kpi-icon">📡</div>
+          <div class="kpi-body">
+            <div class="kpi-label">WiFi Latency</div>
+            <div class="kpi-value" id="kv-latency">0 ms</div>
+          </div>
+        </div>
+        <div class="kpi-card" id="kpi-tasks">
+          <div class="kpi-icon">📊</div>
+          <div class="kpi-body">
+            <div class="kpi-label">Tasks Offloaded</div>
+            <div class="kpi-value" id="kv-tasks">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Architecture Canvas -->
+      <div class="arch-canvas-wrapper">
+        <svg id="arch-svg" class="arch-svg" viewBox="0 0 1100 680" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Glow filters -->
+            <filter id="glow-green" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-amber" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-cyan" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-purple" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-blue" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="8" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-gold" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="12" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <!-- Gradients -->
+            <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#065f46"/>
+            </linearGradient>
+            <linearGradient id="grad-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#78350f"/><stop offset="100%" stop-color="#92400e"/>
+            </linearGradient>
+            <linearGradient id="grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#164e63"/><stop offset="100%" stop-color="#155e75"/>
+            </linearGradient>
+            <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#3b0764"/><stop offset="100%" stop-color="#4c1d95"/>
+            </linearGradient>
+            <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#1e3a5f"/><stop offset="100%" stop-color="#1e40af"/>
+            </linearGradient>
+            <linearGradient id="grad-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#78350f"/><stop offset="50%" stop-color="#92400e"/><stop offset="100%" stop-color="#b45309"/>
+            </linearGradient>
+            <!-- Arrow markers -->
+            <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#34d399"/>
+            </marker>
+            <marker id="arrow-amber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#fbbf24"/>
+            </marker>
+            <marker id="arrow-cyan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#22d3ee"/>
+            </marker>
+            <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#a78bfa"/>
+            </marker>
+            <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#60a5fa"/>
+            </marker>
+            <marker id="arrow-gold" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L8,3 z" fill="#fbbf24"/>
+            </marker>
+            <!-- Animated dashes -->
+            <linearGradient id="flow-green" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#34d399" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#34d399" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Background grid -->
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff08" stroke-width="1"/>
+          </pattern>
+          <rect width="1100" height="680" fill="url(#grid)"/>
+
+          <!-- ===== FLOW LINES ===== -->
+          <!-- Renewable → Decision -->
+          <line class="flow-line" x1="265" y1="140" x2="490" y2="280" stroke="#34d399" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-green)" opacity="0.7"/>
+          <!-- Battery → Decision -->
+          <line class="flow-line" x1="265" y1="380" x2="490" y2="355" stroke="#fbbf24" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-amber)" opacity="0.7"/>
+          <!-- ESP32 → Decision -->
+          <line class="flow-line" x1="480" y1="530" x2="530" y2="430" stroke="#22d3ee" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-cyan)" opacity="0.7"/>
+          <!-- WiFi → Decision -->
+          <line class="flow-line" x1="820" y1="530" x2="640" y2="430" stroke="#a78bfa" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-purple)" opacity="0.7"/>
+          <!-- Edge → Decision -->
+          <line class="flow-line" x1="835" y1="380" x2="640" y2="355" stroke="#60a5fa" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-blue)" opacity="0.7"/>
+          <!-- Decision → Renewable (feedback) -->
+          <path class="flow-line" d="M 550 270 Q 350 80 265 130" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.4"/>
+          <!-- Decision → ESP32 (execute local) -->
+          <path id="path-local" class="flow-line-decision" d="M 530 390 Q 510 480 490 530" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-dasharray="10 4" marker-end="url(#arrow-cyan)" opacity="0"/>
+          <!-- Decision → Edge (offload) -->
+          <path id="path-offload" class="flow-line-decision" d="M 640 390 Q 720 480 820 530" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-dasharray="10 4" marker-end="url(#arrow-blue)" opacity="0"/>
+          <!-- ESP32 ↔ WiFi -->
+          <line class="flow-line" x1="610" y1="555" x2="755" y2="555" stroke="#a78bfa" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#arrow-purple)" opacity="0.7"/>
+          <!-- WiFi ↔ Edge -->
+          <line class="flow-line" x1="835" y1="510" x2="835" y2="440" stroke="#60a5fa" stroke-width="2" stroke-dasharray="6 3" marker-end="url(#arrow-blue)" opacity="0.7"/>
+
+          <!-- ===== MODULE NODES ===== -->
+
+          <!-- 1. Renewable Availability Module (top-left) -->
+          <g id="node-renewable" class="arch-node" onclick="selectModule('renewable')" transform="translate(90,70)">
+            <rect x="0" y="0" width="170" height="135" rx="16" fill="url(#grad-green)" stroke="#34d399" stroke-width="1.5" filter="url(#glow-green)"/>
+            <rect x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#34d39940" stroke-width="1"/>
+            <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#34d399">🌱</text>
+            <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">RENEWABLE</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">AVAILABILITY</text>
+            <line x1="20" y1="74" x2="150" y2="74" stroke="#34d39930" stroke-width="1"/>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Solar: <tspan id="svg-solar">-- W</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Wind: <tspan id="svg-wind">-- W</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Irrad: <tspan id="svg-irrad">-- W/m²</tspan></text>
+            <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#34d399" stroke-width="2" opacity="0"/>
+          </g>
+
+          <!-- 2. Battery Module (bottom-left) -->
+          <g id="node-battery" class="arch-node" onclick="selectModule('battery')" transform="translate(90,305)">
+            <rect x="0" y="0" width="170" height="135" rx="16" fill="url(#grad-amber)" stroke="#fbbf24" stroke-width="1.5" filter="url(#glow-amber)"/>
+            <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#fbbf24">🔋</text>
+            <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">BATTERY</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">MODULE</text>
+            <line x1="20" y1="74" x2="150" y2="74" stroke="#fbbf2430" stroke-width="1"/>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">SoC: <tspan id="svg-soc">--%</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">Voltage: <tspan id="svg-volt">-- V</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">Current: <tspan id="svg-curr">-- A</tspan></text>
+            <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0"/>
+          </g>
+
+          <!-- 3. ESP32 Module (bottom-center-left) -->
+          <g id="node-esp32" class="arch-node" onclick="selectModule('esp32')" transform="translate(375,475)">
+            <rect x="0" y="0" width="170" height="135" rx="16" fill="url(#grad-cyan)" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-cyan)"/>
+            <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#22d3ee">📟</text>
+            <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">ESP32</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">DEVICE MODULE</text>
+            <line x1="20" y1="74" x2="150" y2="74" stroke="#22d3ee30" stroke-width="1"/>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">CPU: <tspan id="svg-cpu">--%</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">Mem: <tspan id="svg-mem">-- KB</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">Power: <tspan id="svg-esp-pwr">-- mW</tspan></text>
+            <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#22d3ee" stroke-width="2" opacity="0"/>
+          </g>
+
+          <!-- 4. WiFi Network Module (bottom-center-right) -->
+          <g id="node-wifi" class="arch-node" onclick="selectModule('wifi')" transform="translate(745,475)">
+            <rect x="0" y="0" width="170" height="135" rx="16" fill="url(#grad-purple)" stroke="#a78bfa" stroke-width="1.5" filter="url(#glow-purple)"/>
+            <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#a78bfa">📶</text>
+            <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">WIFI NETWORK</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">MODULE</text>
+            <line x1="20" y1="74" x2="150" y2="74" stroke="#a78bfa30" stroke-width="1"/>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">RSSI: <tspan id="svg-rssi">-- dBm</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">BW: <tspan id="svg-bw">-- Mbps</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">Latency: <tspan id="svg-lat">-- ms</tspan></text>
+            <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#a78bfa" stroke-width="2" opacity="0"/>
+          </g>
+
+          <!-- 5. Edge Server Module (right) -->
+          <g id="node-edge" class="arch-node" onclick="selectModule('edge')" transform="translate(840,305)">
+            <rect x="0" y="0" width="170" height="135" rx="16" fill="url(#grad-blue)" stroke="#60a5fa" stroke-width="1.5" filter="url(#glow-blue)"/>
+            <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#60a5fa">🖥️</text>
+            <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">EDGE SERVER</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">MODULE</text>
+            <line x1="20" y1="74" x2="150" y2="74" stroke="#60a5fa30" stroke-width="1"/>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">CPU: <tspan id="svg-edge-cpu">--%</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">Queue: <tspan id="svg-queue">-- tasks</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">Latency: <tspan id="svg-edge-lat">-- ms</tspan></text>
+            <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0"/>
+          </g>
+
+          <!-- 6. Decision Engine Module (center) -->
+          <g id="node-decision" class="arch-node selected" onclick="selectModule('decision')" transform="translate(465,255)">
+            <rect x="0" y="0" width="170" height="155" rx="16" fill="url(#grad-gold)" stroke="#f59e0b" stroke-width="2" filter="url(#glow-gold)"/>
+            <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#fcd34d">⚙️</text>
+            <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">DECISION</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">ENGINE</text>
+            <line x1="20" y1="74" x2="150" y2="74" stroke="#f59e0b30" stroke-width="1"/>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Mode: <tspan id="svg-mode">--</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Score: <tspan id="svg-score">--</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Thresh: <tspan id="svg-thresh">30%</tspan></text>
+            <text x="85" y="132" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Tasks: <tspan id="svg-tasks">0</tspan></text>
+            <rect class="node-pulse" x="0" y="0" width="170" height="155" rx="16" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0"/>
+          </g>
+
+          <!-- Legend -->
+          <g transform="translate(20, 620)">
+            <text font-family="Inter" font-size="10" fill="#ffffff60" font-weight="600" letter-spacing="1">LEGEND</text>
+            <circle cx="8" cy="20" r="4" fill="#34d399"/><text x="18" y="24" font-family="Inter" font-size="10" fill="#ffffff80">Renewable Data</text>
+            <circle cx="128" cy="20" r="4" fill="#fbbf24"/><text x="138" y="24" font-family="Inter" font-size="10" fill="#ffffff80">Battery State</text>
+            <circle cx="248" cy="20" r="4" fill="#22d3ee"/><text x="258" y="24" font-family="Inter" font-size="10" fill="#ffffff80">Device Telemetry</text>
+            <circle cx="388" cy="20" r="4" fill="#a78bfa"/><text x="398" y="24" font-family="Inter" font-size="10" fill="#ffffff80">Network QoS</text>
+            <circle cx="498" cy="20" r="4" fill="#60a5fa"/><text x="508" y="24" font-family="Inter" font-size="10" fill="#ffffff80">Edge Capacity</text>
+            <circle cx="608" cy="20" r="4" fill="#f59e0b"/><text x="618" y="24" font-family="Inter" font-size="10" fill="#ffffff80">Decision Output</text>
+          </g>
+        </svg>
+
+        <!-- Module Detail Panel -->
+        <aside id="module-panel" class="module-panel">
+          <div class="panel-header">
+            <div id="panel-icon" class="panel-icon">⚙️</div>
+            <div>
+              <div id="panel-name" class="panel-name">Decision Engine</div>
+              <div id="panel-id" class="panel-id">MODULE-06</div>
+            </div>
+            <button class="panel-close" onclick="closePanel()">✕</button>
+          </div>
+          <div id="panel-body" class="panel-body"></div>
+        </aside>
+      </div>
+
+      <!-- Simulation Controls -->
+      <div class="sim-controls">
+        <div class="sim-label">Simulation Control</div>
+        <button id="btn-sim" class="btn-primary" onclick="toggleSimulation()">▶ Start Simulation</button>
+        <button class="btn-secondary" onclick="triggerTask()">⚡ Inject Task</button>
+        <div class="sim-speed">
+          <label for="speed-range">Speed</label>
+          <input type="range" id="speed-range" min="500" max="3000" value="1500" step="100" oninput="updateSpeed(this.value)"/>
+          <span id="speed-label">1.5s</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──── VIEW: DATA FLOW ──── -->
+    <section id="view-dataflow" class="view">
+      <div class="section-hero">
+        <h1 class="hero-title">Data Flow Diagram</h1>
+        <p class="hero-sub">Step-by-step data exchange between all modules — from energy sensing to the final offloading decision.</p>
+      </div>
+      <div class="flow-diagram-container">
+        <div class="flow-columns">
+          <!-- Column headers -->
+          <div class="flow-col">
+            <div class="flow-col-header green">🌱 Renewable</div>
+            <div class="flow-col-lane" id="lane-renewable"></div>
+          </div>
+          <div class="flow-col">
+            <div class="flow-col-header amber">🔋 Battery</div>
+            <div class="flow-col-lane" id="lane-battery"></div>
+          </div>
+          <div class="flow-col">
+            <div class="flow-col-header cyan">📟 ESP32</div>
+            <div class="flow-col-lane" id="lane-esp32"></div>
+          </div>
+          <div class="flow-col">
+            <div class="flow-col-header gold">⚙️ Decision</div>
+            <div class="flow-col-lane" id="lane-decision"></div>
+          </div>
+          <div class="flow-col">
+            <div class="flow-col-header purple">📶 WiFi</div>
+            <div class="flow-col-lane" id="lane-wifi"></div>
+          </div>
+          <div class="flow-col">
+            <div class="flow-col-header blue">🖥️ Edge</div>
+            <div class="flow-col-lane" id="lane-edge"></div>
+          </div>
+        </div>
+
+        <div class="flow-steps-container">
+          <div class="flow-step-list" id="flow-steps">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ──── VIEW: MODULES ──── -->
+    <section id="view-modules" class="view">
+      <div class="section-hero">
+        <h1 class="hero-title">Module Reference</h1>
+        <p class="hero-sub">Detailed specification and role description for each module in the Digital Twin.</p>
+      </div>
+      <div class="modules-grid">
+
+        <div class="mod-card" style="--accent: #34d399; --accent-dim: #064e3b;">
+          <div class="mod-card-header">
+            <span class="mod-num">01</span>
+            <span class="mod-icon">🌱</span>
+            <h2 class="mod-title">Renewable Availability Module</h2>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Responsibilities</div>
+            <ul class="mod-list">
+              <li>Collects real-time solar irradiance & wind speed data</li>
+              <li>Estimates instantaneous power generation (W)</li>
+              <li>Provides renewable availability score (0–1)</li>
+              <li>Forecasts short-term energy availability</li>
+            </ul>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Outputs to Decision Engine</div>
+            <div class="mod-tags">
+              <span class="tag">P_solar (W)</span>
+              <span class="tag">P_wind (W)</span>
+              <span class="tag">Irradiance (W/m²)</span>
+              <span class="tag">Availability Score</span>
+            </div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Digital Twin Role</div>
+            <p class="mod-desc">Mirrors a physical renewable energy source — solar panel + wind turbine — and computes net energy generation at every timestep.</p>
+          </div>
+        </div>
+
+        <div class="mod-card" style="--accent: #fbbf24; --accent-dim: #78350f;">
+          <div class="mod-card-header">
+            <span class="mod-num">02</span>
+            <span class="mod-icon">🔋</span>
+            <h2 class="mod-title">Battery Module</h2>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Responsibilities</div>
+            <ul class="mod-list">
+              <li>Tracks State of Charge (SoC) in real time</li>
+              <li>Models charge/discharge dynamics</li>
+              <li>Enforces safe operating voltage thresholds</li>
+              <li>Estimates remaining operational time</li>
+            </ul>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Outputs to Decision Engine</div>
+            <div class="mod-tags">
+              <span class="tag">SoC (%)</span>
+              <span class="tag">Voltage (V)</span>
+              <span class="tag">Discharge Rate</span>
+              <span class="tag">Time Remaining</span>
+            </div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Digital Twin Role</div>
+            <p class="mod-desc">Simulates a LiFePO4 / Li-ion battery pack. When SoC is low and renewables are insufficient, offloading is discouraged to conserve energy.</p>
+          </div>
+        </div>
+
+        <div class="mod-card" style="--accent: #22d3ee; --accent-dim: #164e63;">
+          <div class="mod-card-header">
+            <span class="mod-num">03</span>
+            <span class="mod-icon">📟</span>
+            <h2 class="mod-title">ESP32 Device Module</h2>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Responsibilities</div>
+            <ul class="mod-list">
+              <li>Generates IoT tasks with size, deadline, and compute demand</li>
+              <li>Reports CPU load, free memory, and power draw</li>
+              <li>Executes tasks locally when instructed</li>
+              <li>Serializes & transmits tasks over WiFi when offloaded</li>
+            </ul>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Outputs to Decision Engine</div>
+            <div class="mod-tags">
+              <span class="tag">CPU Load (%)</span>
+              <span class="tag">Free RAM (KB)</span>
+              <span class="tag">Task Size (KB)</span>
+              <span class="tag">Deadline (ms)</span>
+            </div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Digital Twin Role</div>
+            <p class="mod-desc">Emulates a constrained microcontroller. Local execution consumes battery faster; offloading trades energy for compute power.</p>
+          </div>
+        </div>
+
+        <div class="mod-card" style="--accent: #a78bfa; --accent-dim: #3b0764;">
+          <div class="mod-card-header">
+            <span class="mod-num">04</span>
+            <span class="mod-icon">📶</span>
+            <h2 class="mod-title">WiFi Network Module</h2>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Responsibilities</div>
+            <ul class="mod-list">
+              <li>Monitors RSSI, throughput, and round-trip latency</li>
+              <li>Estimates data transfer energy cost</li>
+              <li>Determines if network quality is sufficient for offloading</li>
+              <li>Models packet loss impact on task deadlines</li>
+            </ul>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Outputs to Decision Engine</div>
+            <div class="mod-tags">
+              <span class="tag">RSSI (dBm)</span>
+              <span class="tag">Bandwidth (Mbps)</span>
+              <span class="tag">Latency (ms)</span>
+              <span class="tag">Transfer Cost (mJ)</span>
+            </div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Digital Twin Role</div>
+            <p class="mod-desc">Simulates the IEEE 802.11 link between ESP32 and the edge node. Poor signal strength can make offloading more costly than local execution.</p>
+          </div>
+        </div>
+
+        <div class="mod-card" style="--accent: #60a5fa; --accent-dim: #1e3a5f;">
+          <div class="mod-card-header">
+            <span class="mod-num">05</span>
+            <span class="mod-icon">🖥️</span>
+            <h2 class="mod-title">Edge Server Module</h2>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Responsibilities</div>
+            <ul class="mod-list">
+              <li>Reports available CPU cores, memory, and queue depth</li>
+              <li>Estimates task completion time at the edge</li>
+              <li>Manages incoming task queue from ESP32 clients</li>
+              <li>Returns results back via WiFi</li>
+            </ul>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Outputs to Decision Engine</div>
+            <div class="mod-tags">
+              <span class="tag">CPU Available (%)</span>
+              <span class="tag">Queue Depth</span>
+              <span class="tag">Exec Time (ms)</span>
+              <span class="tag">Power Cost (mJ)</span>
+            </div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Digital Twin Role</div>
+            <p class="mod-desc">Simulates a nearby MEC (Mobile Edge Computing) server. If the edge is overloaded, local execution may be preferred even when energy is available.</p>
+          </div>
+        </div>
+
+        <div class="mod-card featured" style="--accent: #f59e0b; --accent-dim: #78350f;">
+          <div class="mod-card-header">
+            <span class="mod-num">06</span>
+            <span class="mod-icon">⚙️</span>
+            <h2 class="mod-title">Decision Engine Module</h2>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Responsibilities</div>
+            <ul class="mod-list">
+              <li>Aggregates telemetry from all 5 input modules</li>
+              <li>Computes a weighted offloading score</li>
+              <li>Enforces renewable-aware policy thresholds</li>
+              <li>Outputs binary decision: LOCAL or OFFLOAD</li>
+            </ul>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Decision Formula</div>
+            <div class="formula-box">
+              Score = α·E_renew + β·(1−SoC_deficit) − γ·WiFi_cost − δ·Edge_load
+            </div>
+            <div class="mod-tags" style="margin-top:8px">
+              <span class="tag">α = Energy weight</span>
+              <span class="tag">β = Battery weight</span>
+              <span class="tag">γ = Network weight</span>
+              <span class="tag">δ = Load weight</span>
+            </div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Decision Rule</div>
+            <div class="rule-box">
+              <div class="rule-row"><span class="rule-cond">Score ≥ threshold AND SoC > 30%</span><span class="rule-act offload">→ OFFLOAD</span></div>
+              <div class="rule-row"><span class="rule-cond">Otherwise</span><span class="rule-act local">→ EXECUTE LOCAL</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <span>Renewable-Aware IoT Task Offloading Digital Twin</span>
+      <span class="footer-dot">·</span>
+      <span>Soft Computing — Sem 5</span>
+      <span class="footer-dot">·</span>
+      <span id="footer-time"></span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
