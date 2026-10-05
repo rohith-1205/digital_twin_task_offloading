@@ -34,6 +34,7 @@
       </div>
       <nav class="header-nav">
         <button class="nav-btn active" data-view="architecture" onclick="switchView('architecture')">Architecture</button>
+        <button class="nav-btn" data-view="twin3d" onclick="switchView('twin3d')">3D Twin</button>
         <button class="nav-btn" data-view="dataflow" onclick="switchView('dataflow')">Data Flow</button>
         <button class="nav-btn" data-view="modules" onclick="switchView('modules')">Modules</button>
       </nav>
@@ -50,7 +51,7 @@
     <section id="view-architecture" class="view active">
       <div class="section-hero">
         <h1 class="hero-title">System Architecture</h1>
-        <p class="hero-sub">Six interconnected modules decide whether IoT tasks run locally on ESP32 or get offloaded to the Edge Server based on renewable energy availability.</p>
+        <p class="hero-sub">Playback of the Python digital-twin engine (<code>digital_twin_simulator.py</code>). Every minute a monitoring task arrives at the solar-powered ESP32; the Decision Engine compares the physical cost of running it locally with offloading it to the edge server.</p>
       </div>
 
       <!-- KPI Bar -->
@@ -58,7 +59,7 @@
         <div class="kpi-card" id="kpi-solar">
           <div class="kpi-icon">☀️</div>
           <div class="kpi-body">
-            <div class="kpi-label">Solar Power</div>
+            <div class="kpi-label">Solar Power (P_PV)</div>
             <div class="kpi-value" id="kv-solar">0 W</div>
           </div>
           <div class="kpi-ring" id="kr-solar"></div>
@@ -186,8 +187,8 @@
           <line class="flow-line" x1="820" y1="530" x2="640" y2="430" stroke="#a78bfa" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-purple)" opacity="0.7"/>
           <!-- Edge → Decision -->
           <line class="flow-line" x1="835" y1="380" x2="640" y2="355" stroke="#60a5fa" stroke-width="2" stroke-dasharray="8 4" marker-end="url(#arrow-blue)" opacity="0.7"/>
-          <!-- Decision → Renewable (feedback) -->
-          <path class="flow-line" d="M 550 270 Q 350 80 265 130" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.4"/>
+          <!-- Decision → Battery (feedback: the chosen option's energy is drawn from the battery) -->
+          <path class="flow-line" d="M 465 395 Q 360 470 262 425" fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.5"/>
           <!-- Decision → ESP32 (execute local) -->
           <path id="path-local" class="flow-line-decision" d="M 530 390 Q 510 480 490 530" fill="none" stroke="#22d3ee" stroke-width="2.5" stroke-dasharray="10 4" marker-end="url(#arrow-cyan)" opacity="0"/>
           <!-- Decision → Edge (offload) -->
@@ -205,11 +206,11 @@
             <rect x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#34d39940" stroke-width="1"/>
             <text x="85" y="28" text-anchor="middle" font-family="Inter" font-size="22" fill="#34d399">🌱</text>
             <text x="85" y="50" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">RENEWABLE</text>
-            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">AVAILABILITY</text>
+            <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">SOLAR PV</text>
             <line x1="20" y1="74" x2="150" y2="74" stroke="#34d39930" stroke-width="1"/>
-            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Solar: <tspan id="svg-solar">-- W</tspan></text>
-            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Wind: <tspan id="svg-wind">-- W</tspan></text>
-            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Irrad: <tspan id="svg-irrad">-- W/m²</tspan></text>
+            <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">P_PV: <tspan id="svg-solar">-- W</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">Sky: <tspan id="svg-wind">--</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#34d399">G: <tspan id="svg-irrad">-- W/m²</tspan></text>
             <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#34d399" stroke-width="2" opacity="0"/>
           </g>
 
@@ -221,8 +222,8 @@
             <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">MODULE</text>
             <line x1="20" y1="74" x2="150" y2="74" stroke="#fbbf2430" stroke-width="1"/>
             <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">SoC: <tspan id="svg-soc">--%</tspan></text>
-            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">Voltage: <tspan id="svg-volt">-- V</tspan></text>
-            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">Current: <tspan id="svg-curr">-- A</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">Charge: <tspan id="svg-volt">-- W</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fbbf24">Load: <tspan id="svg-curr">-- W</tspan></text>
             <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#fbbf24" stroke-width="2" opacity="0"/>
           </g>
 
@@ -234,8 +235,8 @@
             <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">DEVICE MODULE</text>
             <line x1="20" y1="74" x2="150" y2="74" stroke="#22d3ee30" stroke-width="1"/>
             <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">CPU: <tspan id="svg-cpu">--%</tspan></text>
-            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">Mem: <tspan id="svg-mem">-- KB</tspan></text>
-            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">Power: <tspan id="svg-esp-pwr">-- mW</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">Task: <tspan id="svg-mem">-- KB</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#22d3ee">c: <tspan id="svg-esp-pwr">-- cyc/B</tspan></text>
             <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#22d3ee" stroke-width="2" opacity="0"/>
           </g>
 
@@ -247,7 +248,7 @@
             <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">MODULE</text>
             <line x1="20" y1="74" x2="150" y2="74" stroke="#a78bfa30" stroke-width="1"/>
             <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">RSSI: <tspan id="svg-rssi">-- dBm</tspan></text>
-            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">BW: <tspan id="svg-bw">-- Mbps</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">Rate: <tspan id="svg-bw">-- Mbps</tspan></text>
             <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#a78bfa">Latency: <tspan id="svg-lat">-- ms</tspan></text>
             <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#a78bfa" stroke-width="2" opacity="0"/>
           </g>
@@ -260,8 +261,8 @@
             <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">MODULE</text>
             <line x1="20" y1="74" x2="150" y2="74" stroke="#60a5fa30" stroke-width="1"/>
             <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">CPU: <tspan id="svg-edge-cpu">--%</tspan></text>
-            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">Queue: <tspan id="svg-queue">-- tasks</tspan></text>
-            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">Latency: <tspan id="svg-edge-lat">-- ms</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">T_edge: <tspan id="svg-queue">-- ms</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#60a5fa">T_total: <tspan id="svg-edge-lat">-- ms</tspan></text>
             <rect class="node-pulse" x="0" y="0" width="170" height="135" rx="16" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0"/>
           </g>
 
@@ -273,8 +274,8 @@
             <text x="85" y="64" text-anchor="middle" font-family="Inter" font-weight="700" font-size="12" fill="#ffffff" letter-spacing="0.5">ENGINE</text>
             <line x1="20" y1="74" x2="150" y2="74" stroke="#f59e0b30" stroke-width="1"/>
             <text x="85" y="90" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Mode: <tspan id="svg-mode">--</tspan></text>
-            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Score: <tspan id="svg-score">--</tspan></text>
-            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Thresh: <tspan id="svg-thresh">30%</tspan></text>
+            <text x="85" y="104" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">J_local: <tspan id="svg-score">--</tspan></text>
+            <text x="85" y="118" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">J_off: <tspan id="svg-thresh">--</tspan></text>
             <text x="85" y="132" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#fcd34d">Tasks: <tspan id="svg-tasks">0</tspan></text>
             <rect class="node-pulse" x="0" y="0" width="170" height="155" rx="16" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0"/>
           </g>
@@ -305,16 +306,37 @@
         </aside>
       </div>
 
-      <!-- Simulation Controls -->
+      <!-- Playback Controls (data comes from the Python engine via web_data.js) -->
       <div class="sim-controls">
-        <div class="sim-label">Simulation Control</div>
-        <button id="btn-sim" class="btn-primary" onclick="toggleSimulation()">▶ Start Simulation</button>
-        <button class="btn-secondary" onclick="triggerTask()">⚡ Inject Task</button>
+        <div class="sim-label">Twin Playback</div>
+        <button id="btn-sim" class="btn-primary" onclick="toggleSimulation()">▶ Play</button>
+        <button class="btn-secondary" onclick="triggerTask()">⏭ Next Task</button>
         <div class="sim-speed">
           <label for="speed-range">Speed</label>
-          <input type="range" id="speed-range" min="500" max="3000" value="1500" step="100" oninput="updateSpeed(this.value)"/>
+          <input type="range" id="speed-range" min="300" max="3000" value="1500" step="100" oninput="updateSpeed(this.value)"/>
           <span id="speed-label">1.5s</span>
         </div>
+        <div class="sim-speed">
+          <label for="jump-range">Timeline</label>
+          <input type="range" id="jump-range" min="0" max="0" value="0" step="1" oninput="jumpTo(this.value)"/>
+          <span id="jump-label">Day 1</span>
+        </div>
+      </div>
+      <div id="data-missing" class="data-missing" style="display:none">
+        ⚠️ <b>web_data.js</b> not found. Run <code>python digital_twin_simulator.py</code> to generate the twin data, then reload this page.
+      </div>
+    </section>
+
+    <!-- ──── VIEW: 3D TWIN ──── -->
+    <section id="view-twin3d" class="view">
+      <div class="section-hero">
+        <h1 class="hero-title">3D Digital Twin</h1>
+        <p class="hero-sub">Solar PV → Battery → ESP32 → WiFi gateway → Edge server. Every task is animated: offloaded tasks travel as an MQTT packet to the edge and return a result; local tasks are processed on the ESP32. Use the playback controls on the Architecture tab or the buttons below.</p>
+      </div>
+      <div id="twin3d-container" class="twin3d-container"></div>
+      <div class="sim-controls">
+        <button class="btn-primary" onclick="toggleSimulation()" id="btn-sim-3d">▶ Play</button>
+        <button class="btn-secondary" onclick="triggerTask()">⏭ Next Task</button>
       </div>
     </section>
 
@@ -322,7 +344,7 @@
     <section id="view-dataflow" class="view">
       <div class="section-hero">
         <h1 class="hero-title">Data Flow Diagram</h1>
-        <p class="hero-sub">Step-by-step data exchange between all modules — from energy sensing to the final offloading decision.</p>
+        <p class="hero-sub">Step-by-step data exchange for each task — the real values computed by the engine, from energy sensing to the final offloading decision.</p>
       </div>
       <div class="flow-diagram-container">
         <div class="flow-columns">
@@ -368,193 +390,144 @@
         <p class="hero-sub">Detailed specification and role description for each module in the Digital Twin.</p>
       </div>
       <div class="modules-grid">
-
-        <div class="mod-card" style="--accent: #34d399; --accent-dim: #064e3b;">
+        <div class="mod-card" style="--accent: #facc15; --accent-dim: #713f12;">
           <div class="mod-card-header">
             <span class="mod-num">01</span>
-            <span class="mod-icon">🌱</span>
-            <h2 class="mod-title">Renewable Availability Module</h2>
+            <span class="mod-icon">☀️</span>
+            <h2 class="mod-title">Solar PV Module</h2>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Responsibilities</div>
-            <ul class="mod-list">
-              <li>Collects real-time solar irradiance & wind speed data</li>
-              <li>Estimates instantaneous power generation (W)</li>
-              <li>Provides renewable availability score (0–1)</li>
-              <li>Forecasts short-term energy availability</li>
-            </ul>
+            <div class="mod-section-title">What it models</div>
+            <ul class="mod-list"><li>Clear-sky irradiance follows the sun: 0 at night, peak at solar noon</li><li>Cloud factor drifts smoothly (Ornstein–Uhlenbeck) around a daily weather mean</li><li>Daily weather (Sunny / Partly Cloudy / Overcast) follows a Markov chain</li></ul>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Outputs to Decision Engine</div>
-            <div class="mod-tags">
-              <span class="tag">P_solar (W)</span>
-              <span class="tag">P_wind (W)</span>
-              <span class="tag">Irradiance (W/m²)</span>
-              <span class="tag">Availability Score</span>
-            </div>
+            <div class="mod-section-title">Equations</div>
+            <div class="formula-box">G(t) = 1000·sin(π(h−6)/12) · k_cloud(t)  [W/m²]</div><div class="formula-box">P_PV = P_rated · G / G_STC · η_PV   (1 W, 1000 W/m², 0.85)</div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Dataset columns</div>
+            <div class="mod-tags"><span class="tag">Solar_Irradiance</span><span class="tag">Renewable_Power</span><span class="tag">Renewable_Availability</span><span class="tag">Weather</span></div>
           </div>
           <div class="mod-section">
             <div class="mod-section-title">Digital Twin Role</div>
-            <p class="mod-desc">Mirrors a physical renewable energy source — solar panel + wind turbine — and computes net energy generation at every timestep.</p>
+            <p class="mod-desc">Mirrors a small 1 W IoT solar panel. Its power is time-dependent, never random per minute.</p>
           </div>
         </div>
-
-        <div class="mod-card" style="--accent: #fbbf24; --accent-dim: #78350f;">
+        <div class="mod-card" style="--accent: #34d399; --accent-dim: #064e3b;">
           <div class="mod-card-header">
             <span class="mod-num">02</span>
             <span class="mod-icon">🔋</span>
             <h2 class="mod-title">Battery Module</h2>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Responsibilities</div>
-            <ul class="mod-list">
-              <li>Tracks State of Charge (SoC) in real time</li>
-              <li>Models charge/discharge dynamics</li>
-              <li>Enforces safe operating voltage thresholds</li>
-              <li>Estimates remaining operational time</li>
-            </ul>
+            <div class="mod-section-title">What it models</div>
+            <ul class="mod-list"><li>12 Wh Li-ion pack fed by the PV panel and drained by the ESP32</li><li>CC/CV charge taper above 90 % SOC, small self-discharge</li><li>Energy of the chosen action (local or offload) is drawn every minute</li></ul>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Outputs to Decision Engine</div>
-            <div class="mod-tags">
-              <span class="tag">SoC (%)</span>
-              <span class="tag">Voltage (V)</span>
-              <span class="tag">Discharge Rate</span>
-              <span class="tag">Time Remaining</span>
-            </div>
+            <div class="mod-section-title">Equations</div>
+            <div class="formula-box">P_net = P_PV − P_load</div><div class="formula-box">SOC += η_c·P_charge·Δt / E_bat − P_dis·Δt / (η_d·E_bat)</div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Dataset columns</div>
+            <div class="mod-tags"><span class="tag">Battery_SOC</span><span class="tag">dSOC_dt</span><span class="tag">Battery_Charge_Power</span><span class="tag">Battery_Discharge_Power</span><span class="tag">Load_Power</span></div>
           </div>
           <div class="mod-section">
             <div class="mod-section-title">Digital Twin Role</div>
-            <p class="mod-desc">Simulates a LiFePO4 / Li-ion battery pack. When SoC is low and renewables are insufficient, offloading is discouraged to conserve energy.</p>
+            <p class="mod-desc">Closes the loop: decisions change the battery, and the battery SOC changes the price of energy in the next decision.</p>
           </div>
         </div>
-
         <div class="mod-card" style="--accent: #22d3ee; --accent-dim: #164e63;">
           <div class="mod-card-header">
             <span class="mod-num">03</span>
             <span class="mod-icon">📟</span>
-            <h2 class="mod-title">ESP32 Device Module</h2>
+            <h2 class="mod-title">ESP32 IoT Node</h2>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Responsibilities</div>
-            <ul class="mod-list">
-              <li>Generates IoT tasks with size, deadline, and compute demand</li>
-              <li>Reports CPU load, free memory, and power draw</li>
-              <li>Executes tasks locally when instructed</li>
-              <li>Serializes & transmits tasks over WiFi when offloaded</li>
-            </ul>
+            <div class="mod-section-title">What it models</div>
+            <ul class="mod-list"><li>One monitoring task per minute: aggregation, filtering, FFT features, anomaly detection or image preprocessing</li><li>Task_Size = data in the sensing window [KB]; Task_Complexity = CPU cycles per byte</li><li>240 MHz core with a background RTOS / WiFi-stack load</li></ul>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Outputs to Decision Engine</div>
-            <div class="mod-tags">
-              <span class="tag">CPU Load (%)</span>
-              <span class="tag">Free RAM (KB)</span>
-              <span class="tag">Task Size (KB)</span>
-              <span class="tag">Deadline (ms)</span>
-            </div>
+            <div class="mod-section-title">Equations</div>
+            <div class="formula-box">C_required = D_task · c   [cycles]</div><div class="formula-box">CPU_Load = Background + C / (f_ESP32 · T_deadline) · 100</div><div class="formula-box">T_local = C / (f_ESP32 · (1 − Background))</div><div class="formula-box">E_local = (P_idle + α·CPU_Load) · T_local</div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Dataset columns</div>
+            <div class="mod-tags"><span class="tag">Task_Type</span><span class="tag">Task_Size</span><span class="tag">Task_Complexity</span><span class="tag">CPU_Cycles</span><span class="tag">CPU_Load</span><span class="tag">Local_Exec_Time</span><span class="tag">Local_Energy</span></div>
           </div>
           <div class="mod-section">
             <div class="mod-section-title">Digital Twin Role</div>
-            <p class="mod-desc">Emulates a constrained microcontroller. Local execution consumes battery faster; offloading trades energy for compute power.</p>
+            <p class="mod-desc">Heavier tasks raise CPU load, execution time and local energy — the main reason to offload.</p>
           </div>
         </div>
-
-        <div class="mod-card" style="--accent: #a78bfa; --accent-dim: #3b0764;">
+        <div class="mod-card" style="--accent: #c084fc; --accent-dim: #3b0764;">
           <div class="mod-card-header">
             <span class="mod-num">04</span>
             <span class="mod-icon">📶</span>
-            <h2 class="mod-title">WiFi Network Module</h2>
+            <h2 class="mod-title">WiFi / MQTT Network</h2>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Responsibilities</div>
-            <ul class="mod-list">
-              <li>Monitors RSSI, throughput, and round-trip latency</li>
-              <li>Estimates data transfer energy cost</li>
-              <li>Determines if network quality is sufficient for offloading</li>
-              <li>Models packet loss impact on task deadlines</li>
-            </ul>
+            <div class="mod-section-title">What it models</div>
+            <ul class="mod-list"><li>Node on moving equipment: distance to the access point drifts (3–40 m)</li><li>Log-distance path loss with correlated shadowing</li><li>802.11n rate adaptation (MCS0–7) and packet errors → retransmissions</li><li>Task sent as an MQTT PUBLISH over TCP/IP (header overhead included)</li></ul>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Outputs to Decision Engine</div>
-            <div class="mod-tags">
-              <span class="tag">RSSI (dBm)</span>
-              <span class="tag">Bandwidth (Mbps)</span>
-              <span class="tag">Latency (ms)</span>
-              <span class="tag">Transfer Cost (mJ)</span>
-            </div>
+            <div class="mod-section-title">Equations</div>
+            <div class="formula-box">RSSI = RSSI_0 − 10·n·log10(d/d0) + X_σ</div><div class="formula-box">R_eff = R_MCS · η_MAC · (1 − U_channel) / N_tx</div><div class="formula-box">T_tx = Data / R_eff ;  T_net = T_tx + T_result + T_gateway + T_queue</div><div class="formula-box">E_tx = P_tx · T_tx</div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Dataset columns</div>
+            <div class="mod-tags"><span class="tag">Distance</span><span class="tag">RSSI</span><span class="tag">WiFi_MCS</span><span class="tag">Data_Rate</span><span class="tag">PER</span><span class="tag">Transmission_Time</span><span class="tag">Network_Latency</span><span class="tag">Transmission_Energy</span></div>
           </div>
           <div class="mod-section">
             <div class="mod-section-title">Digital Twin Role</div>
-            <p class="mod-desc">Simulates the IEEE 802.11 link between ESP32 and the edge node. Poor signal strength can make offloading more costly than local execution.</p>
+            <p class="mod-desc">Weak signal → lower MCS and more retransmissions → longer airtime → higher latency and radio energy.</p>
           </div>
         </div>
-
-        <div class="mod-card" style="--accent: #60a5fa; --accent-dim: #1e3a5f;">
+        <div class="mod-card" style="--accent: #818cf8; --accent-dim: #1e1b4b;">
           <div class="mod-card-header">
             <span class="mod-num">05</span>
             <span class="mod-icon">🖥️</span>
-            <h2 class="mod-title">Edge Server Module</h2>
+            <h2 class="mod-title">Edge Server</h2>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Responsibilities</div>
-            <ul class="mod-list">
-              <li>Reports available CPU cores, memory, and queue depth</li>
-              <li>Estimates task completion time at the edge</li>
-              <li>Manages incoming task queue from ESP32 clients</li>
-              <li>Returns results back via WiFi</li>
-            </ul>
+            <div class="mod-section-title">What it models</div>
+            <ul class="mod-list"><li>3 GHz vCPU shared with other users</li><li>Daily usage profile plus decaying traffic bursts</li><li>Processing time grows sharply as utilisation approaches 100 %</li></ul>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Outputs to Decision Engine</div>
-            <div class="mod-tags">
-              <span class="tag">CPU Available (%)</span>
-              <span class="tag">Queue Depth</span>
-              <span class="tag">Exec Time (ms)</span>
-              <span class="tag">Power Cost (mJ)</span>
-            </div>
+            <div class="mod-section-title">Equations</div>
+            <div class="formula-box">T_edge = C / (f_edge · (1 − U_server))   (M/M/1 sojourn form)</div><div class="formula-box">T_offload = T_network + T_edge</div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Dataset columns</div>
+            <div class="mod-tags"><span class="tag">Server_CPU_Load</span><span class="tag">Edge_Processing_Time</span><span class="tag">Offload_Total_Time</span><span class="tag">Offload_Energy</span></div>
           </div>
           <div class="mod-section">
             <div class="mod-section-title">Digital Twin Role</div>
-            <p class="mod-desc">Simulates a nearby MEC (Mobile Edge Computing) server. If the edge is overloaded, local execution may be preferred even when energy is available.</p>
+            <p class="mod-desc">A busy edge makes offloading slower and makes the ESP32 listen longer for the result, so local execution can win.</p>
           </div>
         </div>
-
         <div class="mod-card featured" style="--accent: #f59e0b; --accent-dim: #78350f;">
           <div class="mod-card-header">
             <span class="mod-num">06</span>
             <span class="mod-icon">⚙️</span>
-            <h2 class="mod-title">Decision Engine Module</h2>
+            <h2 class="mod-title">Decision Engine</h2>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Responsibilities</div>
-            <ul class="mod-list">
-              <li>Aggregates telemetry from all 5 input modules</li>
-              <li>Computes a weighted offloading score</li>
-              <li>Enforces renewable-aware policy thresholds</li>
-              <li>Outputs binary decision: LOCAL or OFFLOAD</li>
-            </ul>
+            <div class="mod-section-title">What it models</div>
+            <ul class="mod-list"><li>Computes the physical cost of BOTH options for every task</li><li>Battery risk raises the price of energy as SOC falls (for both options)</li><li>No hand-written rules, no random noise: the cheaper option wins</li></ul>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Decision Formula</div>
-            <div class="formula-box">
-              Score = α·E_renew + β·(1−SoC_deficit) − γ·WiFi_cost − δ·Edge_load
-            </div>
-            <div class="mod-tags" style="margin-top:8px">
-              <span class="tag">α = Energy weight</span>
-              <span class="tag">β = Battery weight</span>
-              <span class="tag">γ = Network weight</span>
-              <span class="tag">δ = Load weight</span>
-            </div>
+            <div class="mod-section-title">Equations</div>
+            <div class="formula-box">λ(SOC) = 1 + 4·(1 − SOC/100)^1.5</div><div class="formula-box">J_local = λ·E_local/E_ref + T_local/T_dl + 2·[T_local > T_dl]</div><div class="formula-box">J_off = λ·E_off/E_ref + T_off/T_dl + 0.3·PER + 0.3·U² + 2·[T_off > T_dl]</div><div class="formula-box">Decision = LOCAL if J_local < J_off else OFFLOAD</div>
           </div>
           <div class="mod-section">
-            <div class="mod-section-title">Decision Rule</div>
-            <div class="rule-box">
-              <div class="rule-row"><span class="rule-cond">Score ≥ threshold AND SoC > 30%</span><span class="rule-act offload">→ OFFLOAD</span></div>
-              <div class="rule-row"><span class="rule-cond">Otherwise</span><span class="rule-act local">→ EXECUTE LOCAL</span></div>
-            </div>
+            <div class="mod-section-title">Dataset columns</div>
+            <div class="mod-tags"><span class="tag">Battery_Price</span><span class="tag">Local_Execution_Cost</span><span class="tag">Offload_Execution_Cost</span><span class="tag">Decision</span></div>
+          </div>
+          <div class="mod-section">
+            <div class="mod-section-title">Digital Twin Role</div>
+            <p class="mod-desc">Low SOC + good link → offloading saves energy. Low SOC + poor link → retransmissions make offloading cost more, so local wins.</p>
           </div>
         </div>
-
       </div>
     </section>
   </main>
@@ -564,12 +537,20 @@
     <div class="footer-inner">
       <span>Renewable-Aware IoT Task Offloading Digital Twin</span>
       <span class="footer-dot">·</span>
-      <span>Soft Computing — Sem 5</span>
+      <span>Engine: digital_twin_simulator.py</span>
       <span class="footer-dot">·</span>
       <span id="footer-time"></span>
     </div>
   </footer>
 
+  <!-- Simulation data produced by digital_twin_simulator.py -->
+  <script src="web_data.js"></script>
+  <!-- Shared 3D scene (same code as the Streamlit dashboard) -->
+  <script src="twin3d/vendor/three.min.js"></script>
+  <script src="twin3d/vendor/OrbitControls.js"></script>
+  <script src="twin3d/vendor/GLTFLoader.js"></script>
+  <script src="twin3d/assets/models.js"></script>
+  <script src="twin3d/scene.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
