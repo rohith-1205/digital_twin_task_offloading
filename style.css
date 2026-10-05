@@ -615,7 +615,9 @@ input[type="range"]::-webkit-slider-thumb {
   .header-inner { padding: 0 16px; gap: 12px; }
 }
 @media (max-width: 600px) {
-  .header-nav { display: none; }
+  .header-inner { flex-wrap: wrap; height: auto; padding: 8px 12px; }
+  .header-nav { order: 3; width: 100%; overflow-x: auto; }
+  .header-status { display: none; }
   .kpi-card { min-width: 140px; }
   .flow-columns { grid-template-columns: repeat(2, 1fr); }
 }
@@ -644,3 +646,27 @@ input[type="range"]::-webkit-slider-thumb {
   50%       { opacity: 0.4; }
 }
 .flash { animation: decision-flash 0.4s ease 2; }
+
+/* ── Viewer additions: 3D twin tab, timeline, missing-data notice ── */
+.twin3d-container {
+  height: 620px; border-radius: var(--radius-lg); overflow: hidden;
+  border: 1px solid var(--border-light); box-shadow: 0 0 40px #22d3ee22, 0 0 80px #8b5cf622;
+}
+.sim-speed + .sim-speed { margin-left: 16px; }
+#jump-range { width: 240px; accent-color: var(--cyan); }
+#speed-range { accent-color: var(--gold); }
+#jump-label { font-family: var(--font-mono); font-size: 12px; color: var(--cyan); min-width: 110px; }
+.data-missing {
+  margin-top: 16px; padding: 14px 18px; border-radius: var(--radius-md);
+  background: #7f1d1d40; border: 1px solid var(--red); color: var(--text-primary);
+}
+.hero-sub code, .data-missing code {
+  font-family: var(--font-mono); font-size: 0.9em; color: var(--cyan);
+  background: var(--surface); padding: 1px 6px; border-radius: 4px;
+}
+.mod-card .formula-box + .formula-box { margin-top: 6px; }
+@media (max-width: 760px) {
+  .twin3d-container { height: 480px; }
+  .sim-speed, .sim-speed + .sim-speed { margin-left: 0; }
+  #jump-range { width: 160px; }
+}
