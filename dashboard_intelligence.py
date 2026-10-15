@@ -72,13 +72,19 @@ def controller_card(col, name, decision, score, note):
                  f'<div class="s">offload score {score:.2f} · {note}</div></div>', unsafe_allow_html=True)
 
 
+def hex_to_rgba(hex_color, alpha):
+    """'#f87171' → 'rgba(248,113,113,0.13)'  (plotly does not accept 8-digit hex colours)."""
+    r, g, b = (int(hex_color[i:i + 2], 16) for i in (1, 3, 5))
+    return f"rgba({r},{g},{b},{alpha})"
+
+
 def membership_figure(title, x, curves, unit, current=None, log_x=False, styled=None):
     """Plot fuzzy sets (one coloured line per word) and mark the current input value."""
     fig = go.Figure()
     for i, (label, y) in enumerate(curves.items()):
         c = WORD_COLORS[i % len(WORD_COLORS)]
         fig.add_trace(go.Scatter(x=x, y=y, name=label, mode="lines", line=dict(color=c, width=3),
-                                 fill="tozeroy", fillcolor=c + "22"))
+                                 fill="tozeroy", fillcolor=hex_to_rgba(c, 0.13)))
     if current is not None:
         fig.add_vline(x=current, line=dict(color="#f8fafc", width=2, dash="dash"),
                       annotation_text=f"now {current:.1f}", annotation_font_color="#f8fafc")
