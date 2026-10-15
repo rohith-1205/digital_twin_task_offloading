@@ -277,6 +277,10 @@ class DiagnosedIoTDigitalTwin:
         self.task_type = "Sensor Aggregation"
         self.size_state = 0.0                        # AR(1) log-size deviation [-]
 
+        # Last measured link / server state (what the node knows BEFORE it decides)
+        self.last_rssi = None
+        self.last_server_load = None
+
     # ── Environment ─────────────────────────────────────────────────────────
     def _update_weather(self, minute_of_day: int):
         """At midnight pick tomorrow's weather from the Markov chain."""
@@ -331,7 +335,12 @@ class DiagnosedIoTDigitalTwin:
         return size_kb, cycles_per_byte
 
     # ── One simulation step ─────────────────────────────────────────────────
-    def step(self) -> dict:
+    def step(self, controller=None) -> dict:
+        """
+        Advance one minute. `controller` is optional: an object with decide(inputs) -> "LOCAL"/"OFFLOAD"
+        (e.g. the ANN + fuzzy controllers in hybrid_offloading.py). It only sees what the node
+        knows at decision time. Without it, the exact cost comparison (the oracle) decides.
+        """
         self.tick += 1
         t = self.tick
         minute_of_day = t % 1440
@@ -357,7 +366,18 @@ class DiagnosedIoTDigitalTwin:
         # ─── 6–8. Evaluate LOCAL vs OFFLOAD with the physical models ───────
         m = evaluate_options(size_kb, cycles_per_byte, self.background, rssi,
                              channel_util, server_load, self.soc)
-        decision = m["decision"]
+        if self.last_rssi is None:                      # first step: nothing measured yet
+            self.last_rssi, self.last_server_load = rssi, server_load
+        if controller is None:
+            decision = m["decision"]
+        else:
+            decision = controller.decide({
+                "Hour": hour, "SOC": self.soc, "Solar_Power": p_pv,
+                "Task_Size": size_kb, "Task_Complexity": cycles_per_byte,
+                "Local_Exec_Time": m["t_local"] * 1000.0, "Local_Energy": m["e_local"] * 1000.0,
+                "Last_RSSI": self.last_rssi, "Last_Server_Load": self.last_server_load,
+            })
+        self.last_rssi, self.last_server_load = rssi, server_load
 
         # ─── 9. Battery update with the energy that was actually spent ─────
         e_task = m["e_local"] if decision == "LOCAL" else m["e_offload"]
@@ -366,7 +386,7 @@ class DiagnosedIoTDigitalTwin:
         self.soc, p_charge, p_discharge = update_soc(self.soc, p_pv, p_load)
 
         day = (t // 1440) + 1
-        return {
+        record = {
             "Step": t,
             "Timestamp": f"Day {day:02d}, {minute_of_day // 60:02d}:{minute_of_day % 60:02d}",
             "Hour": round(hour, 3),
@@ -411,6 +431,9 @@ class DiagnosedIoTDigitalTwin:
             "Offload_Execution_Cost": round(m["j_offload"], 5),
             "Decision": decision,
         }
+        if controller is not None:
+            record["Oracle_Decision"] = m["decision"]          # what the exact cost comparison would pick
+        return record
 
 
 # ════════════════════════════════════════════════════════════════════════════

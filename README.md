@@ -22,7 +22,8 @@ pip install -r requirements.txt
 
 python digital_twin_simulator.py      # 7-day dataset → simulation_dataset.csv + web_data.js
 python validate_twin.py               # engineering verification of the relationships
-streamlit run streamlit_app.py        # live dashboard + 3D twin
+python hybrid_offloading.py           # train ANN + fuzzy + ANFIS and compare the controllers
+streamlit run streamlit_app.py        # live dashboard + 3D twin + intelligent decision layer
 ```
 
 You can also open **`index.html`** directly in a browser. It plays back `web_data.js`
@@ -39,6 +40,11 @@ works **offline**.
 | `digital_twin_simulator.py` | **The only simulation engine.** All physical parameters are at the top of the file |
 | `validate_twin.py` | Engineering checks + "what-if" battery × network experiment |
 | `streamlit_app.py` | Dashboard: controls, KPIs, 3D twin, 8 relationship plots, verification, CSV export |
+| `ann_models.py` | 🧠 NumPy neural networks: offload time/energy **predictor** and the "ANN only" classifier |
+| `fuzzy_logic.py` | 🌫️ Mamdani fuzzy controller: membership functions + 12 expert rules ("Fuzzy only") |
+| `anfis.py` | 🔗 ANFIS neuro-fuzzy system (5 layers, hybrid least-squares + gradient learning) |
+| `hybrid_offloading.py` | ⭐ ANN → ANFIS hybrid controller, training, and closed-loop comparison of all controllers |
+| `dashboard_intelligence.py` | Dashboard section for the intelligent layer + always-visible explanation |
 | `twin3d/scene.js` | Shared Three.js scene used by both the dashboard and the web viewer |
 | `twin3d/index.html` | Streamlit component wrapper (scene is created once and only receives new data) |
 | `twin3d/assets/models.js` | Optional GLB/GLTF models that replace the procedural 3D models |
@@ -118,6 +124,51 @@ the timings. The simulator does not run a real MQTT broker.
 - **Low SOC with a poor link:** retransmissions make the radio cost more than the CPU, so LOCAL becomes more attractive.
 
 Solar affects decisions **only** through the battery.
+
+---
+
+## 🤖 Intelligent decision layer: ANN + Fuzzy logic + ANFIS
+
+The exact cost comparison above needs values that a real ESP32 **cannot know before it
+sends a task**: the real network latency, the radio energy and the edge server's load. It is
+therefore used as the **🎯 oracle** (best possible answer). Three controllers decide with
+realistic information only (SOC, the task, the *last* measured RSSI and the *last* reported
+server load) and are graded against it.
+
+```
+🧠 ANN predictor ──► predicted offload time + energy ──┐
+                                                       ├─► 🔗 ANFIS (36 learned fuzzy rules) ─► offload score ─► LOCAL / OFFLOAD
+   SOC, last server load ──────────────────────────────┘
+```
+
+| Controller | How it decides | Strength / weakness |
+|---|---|---|
+| 🎯 Oracle | Exact `J_local` vs `J_offload` with perfect knowledge | Upper bound, not realisable |
+| 🌫️ Fuzzy only | Mamdani: 4 inputs (SOC, task load, RSSI, server load), 12 expert rules, centroid defuzzification | Explainable, but thresholds are guessed |
+| 🧠 ANN only | MLP classifier (9 → 24 → 16 → 1) | Accurate, but a black box |
+| ⭐ ANN + ANFIS | ANN predicts offload time & energy → ANFIS inputs *SOC, energy ratio, time gain, server load* | Accurate **and** explainable |
+
+**ANN.** MLP 6 → 24 → 16 → 2 (tanh, Adam, NumPy). Inputs: task size, complexity, last RSSI,
+last server load, hour. Outputs: `Offload_Total_Time` and `Offload_Energy` (R² ≈ 0.99 on validation).
+
+**ANFIS.** First-order Takagi–Sugeno, Gaussian membership functions, 3·3·2·2 = 36 rules.
+Hybrid learning: least squares for the rule outputs, gradient descent for the membership shapes.
+It is trained on the ANN's **predictions**, so it learns to live with the ANN's errors. Its teacher is a
+soft oracle preference `0.5 + 0.5·tanh((J_local − J_offload)/0.25)`.
+
+**Evaluation.** Training uses the first 80 % of `simulation_dataset.csv` and validation the last 20 %.
+Each controller then drives the battery itself for an **unseen week** (seed 7). Typical result:
+
+| Controller | Agreement with oracle | Task energy | Deadline misses |
+|---|---|---|---|
+| 🎯 Oracle | 100 % | 911 J | 0 |
+| 🌫️ Fuzzy only | 92.7 % | 978 J | 16 |
+| 🧠 ANN only | 95.9 % | 951 J | 11 |
+| ⭐ ANN + ANFIS | **96.6 %** | **932 J** | **9** |
+
+The dashboard shows the live decision of all four controllers, the ANN predictions against reality,
+the fuzzy rules that fired, the learned membership functions and the comparison charts. At the
+bottom, an always-visible guide explains how the ANN, fuzzy logic and ANFIS work together.
 
 ---
 
