@@ -8,8 +8,10 @@ Layout
   2. Live KPIs         – current state of every subsystem
   3. 3D Digital Twin   – persistent Three.js scene (twin3d/), animates every task
   4. Relationship plots – the 8 graphs that prove the equations work
-  5. Verification      – engineering checks (collapsed)
-  6. Dataset           – generate / download the CSV
+  5. Intelligent layer – ANN + Fuzzy + ANFIS decisions, model internals, controller comparison
+  6. Verification      – engineering checks (collapsed)
+  7. Dataset           – generate / download the CSV
+  8. Explanation       – always-visible guide to ANN, fuzzy logic and ANFIS
 """
 
 import os
@@ -20,6 +22,7 @@ import plotly.graph_objects as go
 import streamlit as st
 import streamlit.components.v1 as components
 
+from dashboard_intelligence import render_explanation, render_intelligence
 from digital_twin_simulator import DiagnosedIoTDigitalTwin, export_web_data
 from validate_twin import run_validation, what_if_battery_network
 
@@ -91,6 +94,7 @@ st.markdown("""
   <p>Every minute an IoT monitoring task arrives at a solar-powered ESP32. The twin computes the time and
      energy of running it locally versus offloading it over WiFi to an edge server, and picks the cheaper option.</p>
   <div class="chain">☀️ Solar PV → 🔋 Battery → 📟 ESP32 → 📶 WiFi / MQTT → 🖥️ Edge Server</div>
+  <div class="chain">🧠 ANN predicts → 🌫️ fuzzy rules reason → 🔗 ANFIS learns the rules → ⭐ explainable decision</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -242,6 +246,11 @@ row4[1].plotly_chart(styled(fig, f"8 · Decisions over the last 24 h   (total: {
                      use_container_width=True, theme=None)
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 4b. INTELLIGENT DECISION LAYER (ANN + Fuzzy + ANFIS) — see dashboard_intelligence.py
+# ─────────────────────────────────────────────────────────────────────────────
+render_intelligence(history, styled, CSV_PATH)
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 4. ENGINEERING VERIFICATION (collapsed so the dashboard stays clean)
 # ─────────────────────────────────────────────────────────────────────────────
 with st.expander("🧪 Engineering verification — are the relationships really in the data?", expanded=False):
@@ -288,6 +297,11 @@ if os.path.exists(CSV_PATH):
 
 with st.expander("🔍 Latest records", expanded=False):
     st.dataframe(df.tail(15), use_container_width=True, hide_index=True)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 6. HOW ANN, FUZZY LOGIC AND ANFIS WORK (always visible)
+# ─────────────────────────────────────────────────────────────────────────────
+render_explanation()
 
 # Auto-advance
 if st.session_state.running:
