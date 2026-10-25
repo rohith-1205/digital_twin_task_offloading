@@ -670,3 +670,12 @@ input[type="range"]::-webkit-slider-thumb {
   .sim-speed, .sim-speed + .sim-speed { margin-left: 0; }
   #jump-range { width: 160px; }
 }
+
+/* Industrial presentation: telemetry and replay code are unchanged. */
+:root { --purple:#6bb6cc; --blue:#69bcd5; --text-muted:#8193a8; --radius-xl:12px; }
+body { background-image:none; }
+.hero-title { background:none; -webkit-text-fill-color:#e6edf3; color:#e6edf3; }
+.metric-card { box-shadow:none; border-radius:10px; }
+.twin3d-container { height:650px; border:1px solid #354959; background:#101923; }
+button:focus-visible, a:focus-visible {outline:2px solid #69cfe6;outline-offset:3px;}
+@media(max-width:700px){.twin3d-container{height:600px;}}

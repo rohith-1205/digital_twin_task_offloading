@@ -1,0 +1,81 @@
+OUTDOOR 3D VISUAL ENHANCEMENT — CHANGE AND VERIFICATION REPORT
+
+Source project: digital_twin_3d_only_updated.zip (the latest project ZIP supplied in this workspace).
+The supplied image(20261019-161556).png is a screenshot of the prior grid scene.
+No separate photo reference was available in the attached files.
+
+EXACT FILE CHANGES RELATIVE TO THAT ZIP
+Modified:
+  twin3d/scene.js — outdoor environment, geometry, materials, telemetry overlays,
+    expanded camera control, equipment inspection, visual event and follow camera.
+  index.html — 3D view instructions only.
+  VISUAL_ENHANCEMENT_REPORT.txt — this current verification report.
+  VISUAL_PROTECTED_SHA256.json — hashes of every untouched baseline file.
+New:
+  twin3d/assets/textures/gravel.png
+  twin3d/assets/textures/concrete.png
+  twin3d/assets/textures/galvanized.png
+  twin3d/assets/textures/pv_cells.png
+  twin3d/assets/textures/cloud_soft.png
+
+No simulation Python, Streamlit Python, policy/AI modules, app.js playback, dataset,
+web_data.js, bundled Three.js, OrbitControls, GLTFLoader, licenses, model mapping,
+or pre-existing compiled .pyc files were changed. All are byte-identical to the
+source ZIP; hashes are recorded in VISUAL_PROTECTED_SHA256.json.
+
+VISUAL DESIGN AND CONTROLS
+Four textured monocrystalline panels on galvanized supports, weather-driven
+soft cloud sprites and time/irradiance-driven sunlight, cabinet, IP65
+ESP32 housing with transparent service lid, gateway mast, open-door prefab
+shelter with detailed rack and exterior AC, service lighting, gravel,
+concrete walkway, and protected conduit routes. PBR materials, soft shadows,
+tone mapping, configurable quality and instanced stones are included.
+Isometric, front, rear, left, right, top and five equipment focus views are
+in the camera selector. Free 360°, reset, Follow signal, presentation tour,
+mouse orbit/pan/zoom and clickable equipment inspection are supported.
+The currently recorded OFFLOAD path animates through ESP32, gateway and rack;
+LOCAL remains in the ESP32 enclosure. Follow signal replays the current row's
+visual animation and moves the camera through the scene. Presentation tours
+only the current recorded task and equipment. These actions do not advance
+or change simulated time, stored rows, decisions or outcomes.
+
+VALIDATION ACTUALLY EXECUTED
+- Byte comparison against the source ZIP: only the existing files listed above
+  differ. Historical CSV, web_data.js, simulator, policies and all .pyc match.
+- Seed 42 and seed 7, initial SOC 25%, 10,080 steps each: all 38 output columns
+  exactly equal between source and updated engine; generated CSV text equal.
+- Existing validate_twin.py on historical 10,080-row CSV: 20 / 20 checks PASS.
+- node --check on the modified scene: PASS.
+- Headless scripted construction against bundled Three.js geometry, with mocked
+  DOM, WebGL renderer and OrbitControls: eight records across the week passed;
+  all 11 named camera views, equipment labels, LOCAL/OFFLOAD state, Follow
+  Signal, presentation tour and cleanup ran without a JavaScript exception.
+- Recorded 10:00 weather rows yielded cloud opacity Sunny 0.113, Partly Cloudy
+  0.328 and Overcast 0.456 after visual smoothing.
+
+LIMITS
+The source's 38-column dataset exports Decision and expected times, but no
+Task_Outcome, transmission failure, rejection, or deadline expiry field. The
+scene therefore labels results as modeled and states 'Outcome not exported';
+it does not invent completion, failure or success. The gateway-to-server visual
+link represents the modeled path without asserting its physical medium.
+Actual WebGL/browser-console, real pointer, GPU frame-rate and full Streamlit
+integration checks were not completed. The only available Chromium binary
+crashed before loading a page. The scripted test does not establish finished
+visual fidelity; review it in your browser on your demonstration laptop.
+No third-party photoreal GLB asset was supplied; locally created textures and
+procedural detail improve realism, but photo-quality identity with an unseen
+reference photo cannot be certified. Optional GLB loader and procedural
+fallback remain available, with model-loading progress and fallback handling.
+
+RUN
+Extract the complete ZIP, then in the 'digital twin' folder:
+  pip install -r requirements.txt
+  streamlit run streamlit_app.py
+For historical replay in the standalone viewer:
+  python -m http.server 8000
+  open http://localhost:8000 and select 3D Twin.
+Use the camera selector and the current row's Follow signal button for
+OFFLOAD. Step to a LOCAL row to see processing stay in the ESP32.
+The existing python digital_twin_simulator.py command would regenerate
+historical outputs; it is unnecessary for viewing this included dataset.

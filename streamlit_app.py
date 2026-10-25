@@ -66,6 +66,12 @@ st.markdown("""
   .clock { font-family: 'JetBrains Mono', monospace; color: #22d3ee; background: rgba(15,23,42,.8);
            padding: 8px 14px; border-radius: 10px; border: 1px solid #1e3a5f; display: inline-block; }
   #MainMenu, footer { visibility: hidden; }
+  /* Presentation-only overrides. */
+  .stApp { background:#0c1420; }
+  .hero { background:#142230; border-color:#304454; border-radius:10px; }
+  .hero h1 { background:none; -webkit-text-fill-color:#e6edf3; font-weight:700; }
+  .kpi { box-shadow:none; border-radius:8px; background:#14212e; }
+  .kpi .v { font-variant-numeric:tabular-nums; }
 </style>
 """, unsafe_allow_html=True)
 

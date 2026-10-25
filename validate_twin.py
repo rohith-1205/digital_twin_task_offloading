@@ -12,6 +12,12 @@ Correlations use Spearman's rank correlation ρ (monotonic trend, no linearity a
 
 import sys
 
+if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 import numpy as np
 import pandas as pd
 
