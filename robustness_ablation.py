@@ -5,8 +5,9 @@ Robustness and ablation study for the intelligent offloading layer
                 hybrid vs baselines compared with the exact Wilcoxon signed-rank test
 2. Ablation A : retrain the ANN predictor with one input removed (validation R²)
 3. Ablation B : change one design choice of the hybrid (target, MF tuning, no ANN)
+4. ANFIS only : the no-ANN ANFIS controller on the same 11 unseen weeks, vs the hybrid
 
-Uses the project modules unchanged.  Run:  python robustness_ablation.py   (~2 min)
+Uses the project modules unchanged.  Run:  python robustness_ablation.py   (~4 min)
 """
 import itertools
 import os
@@ -127,3 +128,19 @@ for v in variants:
                  "Mean regret": r["Mean regret (cost)"]})
 print("\n=== ABLATION B: hybrid decision layer (offline validation + closed loop, unseen week seed 7) ===")
 print(pd.DataFrame(rows).round(3).to_string(index=False))
+
+# ── 4. ANFIS on its own (algorithm 3) over the same 11 unseen weeks ─────────
+anfis_only = variants[3]                                   # ANFIS fed raw measurements, no ANN
+rows = []
+for seed in SEEDS:
+    week, _ = ho.closed_loop_comparison({"fuzzy": anfis_only, "ann": anfis_only, "hybrid": anfis_only}, seed=seed)
+    rows.append({m: week.iloc[1][m] for m in metrics})
+alone = pd.DataFrame(rows, index=SEEDS)
+print("\n=== 11 UNSEEN WEEKS: 🔗 ANFIS only (no ANN), mean ± std ===")
+print(alone.agg(["mean", "std"]).round(3).to_string())
+for m in metrics:
+    a, b = piv[m][hyb].loc[SEEDS], alone[m]
+    stat, p, n = wilcoxon_exact(a, b)
+    better = (a > b).sum() if m.startswith("Agreement") else (a < b).sum()
+    print(f"Hybrid vs ANFIS only     {m:27s} hybrid better in {better:2d}/11 weeks · "
+          f"mean diff {np.mean(a.to_numpy() - b.to_numpy()):+8.3f} · W = {stat:5.1f} · p = {p:.4f} (n≠0 = {n})")
