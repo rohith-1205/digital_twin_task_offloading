@@ -11,12 +11,13 @@
 ## 📑 Contents
 
 - [0 · Running order and slide plan](#0--running-order-and-slide-plan)
-- [PART 1 — Sanjith M P · Digital twin & dataset](#part-1--sanjith-m-p--digital-twin--dataset)
-- [PART 2 — Darshan R · WiFi, edge server & baselines](#part-2--darshan-r--wifi-edge-server--baselines)
-- [PART 3 — Rohith S · ANN predictor & ablation](#part-3--rohith-s--ann-predictor--ablation)
-- [PART 4 — Vishaanth R · ANFIS, 36 rules, hybrid & dashboard](#part-4--vishaanth-r--anfis-36-rules-hybrid--dashboard)
-- [PART 5 — Darshan R · Results & conclusion](#part-5--darshan-r--results--conclusion)
-- [PART 6 — Team appendix](#part-6--team-appendix)
+- [PART 1 — Rohith S · Opening & the problem](#part-1--rohith-s--opening--the-problem)
+- [PART 2 — Sanjith M P · Digital twin & dataset](#part-2--sanjith-m-p--digital-twin--dataset)
+- [PART 3 — Darshan R · WiFi, edge server & baselines](#part-3--darshan-r--wifi-edge-server--baselines)
+- [PART 4 — Rohith S · ANN predictor & ablation](#part-4--rohith-s--ann-predictor--ablation)
+- [PART 5 — Vishaanth R · ANFIS, 36 rules, hybrid & dashboard](#part-5--vishaanth-r--anfis-36-rules-hybrid--dashboard)
+- [PART 6 — Darshan R · Results & conclusion](#part-6--darshan-r--results--conclusion)
+- [PART 7 — Team appendix](#part-7--team-appendix)
 
 ---
 
@@ -24,20 +25,21 @@
 
 | Clock | Speaker | Time | Slides | Topic | Contribution form |
 |---|---|---|---|---|---|
-| 0:00 – 3:00 | **Sanjith M P** | 3:00 | S1–S4 | Problem, digital twin (solar, battery, ESP32, tasks), oracle cost, **dataset + 38 features**, 20/20 checks | Physics twin, dataset, validation |
-| 3:00 – 4:45 | **Darshan R** | 1:45 | S5–S6 | WiFi link + edge server models, the information gap, **Mamdani fuzzy** + **ANN-classifier** baselines | WiFi/edge, baselines |
-| 4:45 – 7:45 | **Rohith S** | 3:00 | S7–S8 | **ANN predictor** (inputs, 6-24-16-2, training, R²), worked example, **ablation** | ANN predictor, ablation |
-| 7:45 – 10:45 | **Vishaanth R** | 3:00 | S9–S11 | **ANFIS** 5 layers, **36 rules**, hybrid learning, soft target, **hybrid** example, design ablation, **dashboard** | ANFIS layer, dashboard |
-| 10:45 – 12:00 | **Darshan R** | 1:15 | S12 | **Closed-loop results on 11 unseen weeks + Wilcoxon**, limitations, conclusion | Robustness, significance |
+| 0:00 – 0:50 | **Rohith S** | 0:50 | S1–S2 | Title, team, **the problem**: run locally or offload? | Opening (also wrote the paper) |
+| 0:50 – 3:50 | **Sanjith M P** | 3:00 | S3–S4 | Digital twin (solar, battery, ESP32, tasks), oracle cost, **dataset + 38 features**, 20/20 checks | Physics twin, dataset, validation |
+| 3:50 – 5:40 | **Darshan R** | 1:50 | S5–S6 | WiFi link + edge server models, the information gap, **Mamdani fuzzy** + **ANN-classifier** baselines | WiFi/edge, baselines |
+| 5:40 – 7:50 | **Rohith S** | 2:10 | S7–S8 | **ANN predictor** (inputs, 6-24-16-2, training, R²), worked example, **ablation** | ANN predictor, ablation |
+| 7:50 – 10:50 | **Vishaanth R** | 3:00 | S9–S11 | **ANFIS** 5 layers, **36 rules**, hybrid learning, soft target, **hybrid** example, design ablation, **dashboard** | ANFIS layer, dashboard |
+| 10:50 – 12:00 | **Darshan R** | 1:10 | S12 | **Closed-loop results on 11 unseen weeks + Wilcoxon**, limitations, conclusion | Robustness, significance |
 
-Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow order *and* lets him present his own robustness results at the end.
+**Rohith** speaks twice (0:50 opening + 2:10 ANN = 3:00) and **Darshan** speaks twice (1:50 + 1:10 = 3:00). This keeps the talk in data-flow order, and Darshan still presents his own robustness results at the end.
 
 **Slide list (12 slides)**
 
 | # | Title | Owner |
 |---|---|---|
-| S1 | Title, team, one-line idea | Sanjith |
-| S2 | The problem: run locally or offload? | Sanjith |
+| S1 | Title, team, one-line idea | Rohith |
+| S2 | The problem: run locally or offload? | Rohith |
 | S3 | Digital twin: solar → battery → ESP32 → tasks | Sanjith |
 | S4 | Dataset generation, 38 features, oracle cost, 20/20 validation | Sanjith |
 | S5 | WiFi link and edge server models | Darshan |
@@ -51,9 +53,9 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ---
 
-# PART 1 — Sanjith M P · Digital twin & dataset
+# PART 1 — Rohith S · Opening & the problem
 
-⏱️ **0:00 – 3:00 · Slides S1–S4 · about 420 words**
+⏱️ **0:00 – 0:50 · Slides S1–S2 · about 110 words** *(Rohith returns at 5:40 for the ANN, Part 4)*
 
 ### 🖼️ What goes on your slides
 
@@ -67,6 +69,33 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 - 💻 **LOCAL:** ESP32 CPU time + battery energy
 - ⚡ **OFFLOAD:** radio energy + network delay + edge server delay
 - The best choice changes with sun, battery, signal and server load
+- 🎯 **Goal:** decide well using only what the node knows, *and explain why*
+
+### 🗣️ Spoken script
+
+**[0:00]** "Good morning, respected faculty. Our project is an *explainable ANN–ANFIS hybrid for renewable-aware task offloading in solar-powered IoT nodes, using a digital twin*. I am Rohith, and with me are Sanjith, Darshan and Vishaanth."
+
+**[0:15]** "Picture a solar-powered ESP32 sensor node. Every minute a monitoring task arrives. It can run the task **locally**, spending CPU time and battery, or **offload** it over WiFi to an edge server, spending radio energy and waiting for the network and the server. The right choice keeps changing with the sun, the battery, the signal and the server load. Our goal is to choose well using only what the node knows, and to **explain why**."
+
+### 🔁 Handover (0:45)
+"Sanjith built a digital twin to study this at scale. Over to Sanjith."
+
+### ❓ If the reviewer asks you (opening)…
+
+| Question | Crisp answer |
+|---|---|
+| What is task offloading? | Deciding *where* a computation runs: on the weak device itself, or on a stronger machine reached over the network. It trades CPU energy and time against radio energy and network/server delay. |
+| Why is this a soft-computing problem? | The node must decide under uncertainty (it only knows the *last* signal and server load), and the trade-off is easiest to state in vague terms. ANN learning plus fuzzy reasoning handles both. |
+| What is new in your work? | An ANN *predicts* the unknown offload cost, and an ANFIS with 36 learned rules *reasons* about it. The result is as accurate as a black-box ANN, uses less energy, and explains every decision. |
+| Is there a cloud tier? | No: the two options are the ESP32 and an edge server. A cloud tier is future work. |
+
+---
+
+# PART 2 — Sanjith M P · Digital twin & dataset
+
+⏱️ **0:50 – 3:50 · Slides S3–S4 · about 400 words**
+
+### 🖼️ What goes on your slides
 
 **S3 · Digital twin (Δt = 1 min)**
 
@@ -75,29 +104,28 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 | Solar | G = 1000·sin(π(h−6)/12)·k_cloud ; P_PV = P_rated·G/G_STC·η | 1 W panel, η = 0.85, OU clouds, Markov weather |
 | Battery | SOC += η_c·P_ch·Δt/E_bat − P_dis·Δt/(η_d·E_bat) | 12 Wh, η = 0.95, CC/CV taper > 90 % |
 | ESP32 | C = D·c ; T_local = C/(f(1−bg)) ; E_local = (P_idle + α·CPU%)·T_local | 240 MHz, deadline 5 s |
+| Tasks | 5 types, 60 → 3000 cycles/byte ; size D follows a smooth AR(1) process, larger in working hours | 1 task per minute |
 | Closed loop | energy of the **chosen** option is drawn from the battery | |
 
 **S4 · Dataset + oracle + validation**
 - Oracle cost: **J = λ(SOC)·E + T/5 s + 2·[miss]** (+ 0.3·PER + 0.3·U² for offload), with **λ = 1 + 4(1 − SOC)^1.5**
 - 7 days × 1440 min = **10,080 tasks × 38 features** (seed 42, SOC starts at 25 %)
 - Feature groups: Time & weather (4) · Solar & battery (8) · Task & ESP32 (9) · Network (10) · Edge (3) · Cost & decision (4)
+- Every row stores **both** options in full (time, energy, cost) → ideal supervised-learning data
 - Decisions emerge: **54 % LOCAL / 46 % OFFLOAD**
+- Running example **T09206** (Anomaly Detection, 214 KB): local 1827 ms / 287 mJ vs offload 361 ms / 151 mJ → **OFFLOAD**
 - `validate_twin.py`: **20 / 20 checks PASS**
 - *Visual:* dashboard plot 7 (J_local vs J_offload scatter) or the SOC-vs-time plot
 
 ### 🗣️ Spoken script
 
-**[0:00]** "Good morning, respected faculty. Our project is an *explainable ANN–ANFIS hybrid for renewable-aware task offloading in solar-powered IoT nodes, using a digital twin*. I am Sanjith, and I will explain the digital twin and the dataset. Darshan will cover the network and our baselines, Rohith the neural network, and Vishaanth the ANFIS hybrid."
+**[0:50]** "Thank you, Rohith. Hardware tests at this scale are impractical, so I built a **physics-based digital twin** that advances one minute per step. For **solar**, irradiance follows a half-sine from 6 am to 6 pm, times a smoothly drifting cloud factor, with Markov-chain weather. The **battery** is a 12 watt-hour lithium-ion pack with 95 % efficiency and a CC/CV taper above 90 %. There are **five task types**, from sensor aggregation at 60 cycles per byte up to image preprocessing at 3000, and task sizes follow a smooth AR(1) process that grows during working hours. On the **ESP32**, a task needs C equals D times c CPU cycles, that is, data size times cycles per byte. At 240 megahertz that gives the local time, and the local energy is idle power plus alpha times CPU load, multiplied by that time. Most importantly, the energy of whichever option is chosen is drawn from the battery, so every decision affects the next one. It is a **closed loop**."
 
-**[0:20]** "Picture a solar-powered ESP32 sensor node. Every minute a monitoring task arrives, anything from simple sensor aggregation to anomaly detection or image preprocessing. The node has two choices. It can run the task **locally**, spending its own CPU time and battery. Or it can **offload** it over WiFi to an edge server, spending radio energy and waiting for the network and the server. The right choice keeps changing with the sun, the battery, the signal and the server load."
+**[2:00]** "The twin computes the true cost of both options. J equals a battery price lambda times energy, plus time over the 5-second deadline, plus a deadline penalty, and for offloading, link and server risk terms. Lambda equals 1 plus 4 times (1 minus SOC) to the power 1.5, so the same joule costs up to five times more on an empty battery. The cheaper option is the **oracle** decision. Running seven days gives our **dataset: 10,080 tasks with 38 features** in six groups: time and weather, solar and battery, task and ESP32, network, edge server, and cost and decision. Every row stores **both** options in full, which is exactly what supervised learning needs. About 54 % run locally and 46 % are offloaded, a split that emerges from the physics. Take task **T09206**, a 214-kilobyte anomaly-detection task: locally it would take 1.8 seconds and 287 millijoules, offloaded 361 milliseconds and 151 millijoules, so the oracle offloads it. We will follow this task through the whole talk."
 
-**[0:50]** "Hardware tests at this scale are impractical, so I built a **physics-based digital twin** that advances one minute per step. For **solar**, irradiance follows a half-sine from 6 am to 6 pm, times a smoothly drifting cloud factor, with Markov-chain weather. The **battery** is a 12 watt-hour lithium-ion pack with 95 % efficiency and a CC/CV taper above 90 %. On the **ESP32**, a task needs C equals D times c CPU cycles, that is, data size times cycles per byte. At 240 megahertz that gives the local time, and the local energy is idle power plus alpha times CPU load, multiplied by that time. Most importantly, the energy of whichever option is chosen is drawn from the battery, so every decision affects the next one. It is a **closed loop**."
+**[3:10]** "To trust the twin, `validate_twin.py` runs **20 engineering checks**. For example, distance up means RSSI down, server load up means edge time up, the decision always equals the minimum cost, and the battery energy balance closes to within 10⁻⁵ %. All **20 pass**."
 
-**[1:50]** "The twin computes the true cost of both options. J equals a battery price lambda times energy, plus time over the 5-second deadline, plus a deadline penalty, and for offloading, link and server risk terms. Lambda equals 1 plus 4 times (1 minus SOC) to the power 1.5, so energy gets more expensive as the battery empties. The cheaper option is the **oracle** decision. Running seven days gives our **dataset: 10,080 tasks with 38 features** in six groups: time and weather, solar and battery, task and ESP32, network, edge server, and cost and decision. About 54 % run locally and 46 % are offloaded, a split that emerges from the physics."
-
-**[2:35]** "To trust the twin, `validate_twin.py` runs **20 engineering checks**. For example, distance up means RSSI down, and the battery energy balance closes to within 10⁻⁵ %. All **20 pass**."
-
-### 🔁 Handover (2:55)
+### 🔁 Handover (3:30)
 "The offload side of the twin, the WiFi link and the edge server, was modelled by Darshan, who will explain it now."
 
 ### ❓ If the reviewer asks you…
@@ -112,9 +140,9 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ---
 
-# PART 2 — Darshan R · WiFi, edge server & baselines
+# PART 3 — Darshan R · WiFi, edge server & baselines
 
-⏱️ **3:00 – 4:45 · Slides S5–S6 · about 245 words**
+⏱️ **3:50 – 5:40 · Slides S5–S6 · about 260 words**
 
 ### 🖼️ What goes on your slides
 
@@ -137,14 +165,14 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ### 🗣️ Spoken script
 
-**[3:00]** "Thank you, Sanjith. I modelled the offload path. The node moves, so its **distance** to the access point wanders between 3 and 40 metres. **RSSI** follows log-distance path loss, minus 40 minus 26 log d, plus correlated shadowing. From the RSSI, 802.11n **rate adaptation** picks a speed from 65 down to 6.5 megabits per second. The **packet error rate** is 10 % at the sensitivity limit and falls with margin, which gives retransmissions. Transmission time is the bytes, with MQTT and TCP/IP headers, over the effective rate; radio energy is 0.6 watts times that time. At the **edge**, time equals cycles over 3 gigahertz times one minus the load, so it explodes as the server saturates."
+**[3:50]** "Thank you, Sanjith. I modelled the offload path. The node moves, so its **distance** to the access point wanders between 3 and 40 metres. **RSSI** follows log-distance path loss, minus 40 minus 26 log d, plus correlated shadowing. From the RSSI, 802.11n **rate adaptation** picks a speed from 65 down to 6.5 megabits per second. The **packet error rate** is 10 % at the sensitivity limit and falls with margin, which gives retransmissions. Transmission time is the bytes, with MQTT and TCP/IP headers, over the effective rate; radio energy is 0.6 watts times that time. At the **edge**, time equals cycles over 3 gigahertz times one minus the load, so it explodes as the server saturates."
 
-**[3:45]** "Here is the key problem. The oracle needs the *current* signal and server load. A real ESP32 knows only the **last** measured RSSI and the **last** reported load. So I built two baselines that decide under this uncertainty. The first is a **Mamdani fuzzy controller** with four linguistic inputs: battery, task load, WiFi link and server load. It uses trapezoid and triangle membership functions and **12 expert rules**, like 'IF the task is heavy AND the link is good, THEN offload', with min for AND, max aggregation and centroid defuzzification. The second is an **ANN classifier**: 9 inputs, two hidden layers, and a sigmoid output trained on the oracle labels."
+**[4:40]** "Here is the key problem. The oracle needs the *current* signal and server load. A real ESP32 knows only the **last** measured RSSI and the **last** reported load. So I built two baselines that decide under this uncertainty. The first is a **Mamdani fuzzy controller** with four linguistic inputs: battery, task load, WiFi link and server load. It uses trapezoid and triangle membership functions and **12 expert rules**, like 'IF the task is heavy AND the link is good, THEN offload', with min for AND, max aggregation and centroid defuzzification. The second is an **ANN classifier**: 9 inputs, two hidden layers, and a sigmoid output trained on the oracle labels."
 
-**[4:30]** "Every controller is tested in a **closed loop**, driving the battery through weeks it has never seen."
+**[5:25]** "Every controller is tested in a **closed loop**, driving the battery through weeks it has never seen."
 
-### 🔁 Handover (4:40)
-"To decide well, the node must first know what offloading will cost. Rohith will show how we predict it."
+### 🔁 Handover (5:35)
+"To decide well, the node must first know what offloading will cost. Rohith is back to show how we predict it."
 
 ### ❓ If the reviewer asks you…
 
@@ -158,9 +186,9 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ---
 
-# PART 3 — Rohith S · ANN predictor & ablation
+# PART 4 — Rohith S · ANN predictor & ablation
 
-⏱️ **4:45 – 7:45 · Slides S7–S8 · about 420 words**
+⏱️ **5:40 – 7:50 · Slides S7–S8 · about 305 words** *(your opening was Part 1)*
 
 ### 🖼️ What goes on your slides
 
@@ -190,15 +218,15 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ### 🗣️ Spoken script
 
-**[4:45]** "Thank you, Darshan. My part is the **ANN predictor**, the *predict* step. Its job is to estimate, *before* sending, how long offloading will take and how much energy it will cost. The inputs are six things the node knows: the log of task size, the log of complexity, the last RSSI, the last server load, and the hour encoded as sine and cosine, so that 11 pm and midnight are close together. The outputs are the log of offload time and the log of offload energy. We use logs because these values span 10 milliseconds to 4 seconds, so the network learns **relative** error."
+**[5:40]** "Thank you, Darshan. My part is the **ANN predictor**, the *predict* step. It estimates, *before* sending, the offload time and energy. The inputs are six things the node knows: the log of task size, the log of complexity, the last RSSI, the last server load, and the hour encoded as sine and cosine. The outputs are the log of offload time and the log of offload energy. We use logs because these values span 10 milliseconds to 4 seconds, so the network learns **relative** error."
 
-**[5:25]** "The architecture is **6–24–16–2**, with tanh hidden layers and linear outputs: 602 parameters, written from scratch in NumPy, including the forward pass, back-propagation and the **Adam** optimiser with learning rate 0.01, batch 128 and 60 epochs, minimising mean squared error. The data split is **chronological**: the first 5.6 days train the network, and the last 1.4 days are validation it has never seen. Training and validation loss fall together, and validation ends at 0.011, below the training loss, so there is no overfitting."
+**[6:15]** "The architecture is **6–24–16–2**, with tanh hidden layers and linear outputs: 602 parameters, written from scratch in NumPy with back-propagation and the **Adam** optimiser, learning rate 0.01, batch 128, 60 epochs. The split is **chronological**: the first 5.6 days train, and the last 1.4 days are validation it has never seen."
 
-**[6:00]** "The results: **R² of 0.989 for time and 0.987 for energy**, with a median error of about 5 %. An R² of 0.989 means the network explains about 99 % of the variation in offload time. Take task T09206, an anomaly-detection task of 214 kilobytes. The last RSSI was −68.8 while the actual signal was −62. Even so, the ANN predicts 353 milliseconds and 149 millijoules, against a truth of 361 and 151. That is within 2 %."
+**[6:40]** "The results: **R² of 0.989 for time and 0.987 for energy**, with a median error of about 5 %. Take Sanjith's task T09206, an anomaly-detection task of 214 kilobytes. The last RSSI was −68.8 while the actual signal was −62. Even so, the ANN predicts 353 milliseconds and 149 millijoules, against a truth of 361 and 151. That is within 2 %."
 
-**[6:35]** "I ran an **ablation study**, removing one input at a time and retraining. Without task size, time R² drops to 0.924. Without complexity it is 0.949, without the last RSSI 0.968, without server load 0.978, and without the hour 0.988. So the data size and the link quality matter most, and time of day barely matters. Then at system level: if ANFIS is given the raw RSSI instead of my ANN's predicted cost, agreement with the oracle on an unseen week drops from **96.6 to 93.6 %**, task energy rises by 25 joules, and deadline misses rise from 9 to 14. The ANN is what turns uncertain network conditions into usable numbers."
+**[7:05]** "I ran an **ablation study**, removing one input at a time and retraining. Removing task size hurts most: time R² falls to 0.924. Complexity, last RSSI and server load follow, while the hour barely matters, at 0.988. Then at system level: if ANFIS is given the raw RSSI instead of my ANN's predicted cost, agreement with the oracle on an unseen week drops from **96.6 to 93.6 %**, and deadline misses rise from 9 to 14. The ANN is what turns uncertain network conditions into usable numbers."
 
-### 🔁 Handover (7:35)
+### 🔁 Handover (7:40)
 "But an ANN alone is a black box: it cannot tell us *why*. Vishaanth will show how ANFIS makes the decision explainable."
 
 ### ❓ If the reviewer asks you…
@@ -213,9 +241,9 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ---
 
-# PART 4 — Vishaanth R · ANFIS, 36 rules, hybrid & dashboard
+# PART 5 — Vishaanth R · ANFIS, 36 rules, hybrid & dashboard
 
-⏱️ **7:45 – 10:45 · Slides S9–S11 · about 420 words**
+⏱️ **7:50 – 10:50 · Slides S9–S11 · about 400 words**
 
 ### 🖼️ What goes on your slides
 
@@ -260,17 +288,17 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ### 🗣️ Spoken script
 
-**[7:45]** "Thank you, Rohith. My part is the *reason* step: **ANFIS**, the Adaptive Neuro-Fuzzy Inference System. ANFIS is a fuzzy rule base built as a five-layer network, so it can be **trained**. It has four inputs, and two of them come from Rohith's ANN. They are battery SOC, with the words Low, Medium and High; the **energy ratio**, the log of predicted offload energy over local energy, with Offload cheaper, Similar and Local cheaper; the **time gain**, Small or Large; and server load, Light or Busy. Three times three times two times two gives **36 rules**, one for every combination."
+**[7:50]** "Thank you, Rohith. My part is the *reason* step: **ANFIS**, the Adaptive Neuro-Fuzzy Inference System. ANFIS is a fuzzy rule base built as a five-layer network, so it can be **trained**. It has four inputs, and two of them come from Rohith's ANN. They are battery SOC, with the words Low, Medium and High; the **energy ratio**, the log of predicted offload energy over local energy, with Offload cheaper, Similar and Local cheaper; the **time gain**, Small or Large; and server load, Light or Busy. Three times three times two times two gives **36 rules**, one for every combination."
 
-**[8:25]** "Layer one uses **Gaussian membership functions**. Layer two multiplies them to get each rule's strength. Layer three normalises. In layer four each rule outputs a linear function, *p·x plus q*. That makes it first-order Takagi–Sugeno. Layer five takes the weighted sum, which is the **offload score**; above 0.5 means offload. In total there are 200 trainable parameters."
+**[8:30]** "Layer one uses **Gaussian membership functions**. Layer two multiplies them to get each rule's strength. Layer three normalises. In layer four each rule outputs a linear function, *p·x plus q*. That makes it first-order Takagi–Sugeno. Layer five takes the weighted sum, which is the **offload score**; above 0.5 means offload. In total there are 200 trainable parameters."
 
 **[8:55]** "Training uses Jang's **hybrid learning**. Each epoch, least squares solves the 180 rule-output parameters exactly, then gradient descent tunes the membership centres and widths, for 30 epochs. The target is a **soft oracle preference**, a tanh of the cost difference, so ANFIS learns *how strongly* one option is better. And because it is trained on the ANN's predictions, it learns to live with the ANN's errors. For task T09206, the energy ratio says offloading needs about half the energy. Its memberships are SOC Medium 0.73, Offload cheaper 0.51, Small gain 0.61 and Busy server 0.70; multiplied together, that rule's strength is 0.16. The strongest rule, *SOC Medium AND Offload cheaper AND Small gain AND Busy server*, carries 19 % of the weight, and the final score is **0.9965, so offload**. The teacher's value was 0.9945."
 
-**[9:50]** "We also checked my design choices. Training on hard 0-or-1 labels instead of the soft target drops agreement on an unseen week from **96.6 to 92.5 %**. Tuning the membership functions changes little: it is slightly better on validation and slightly worse on this test week. The least-squares rule outputs do most of the work, and we report that honestly."
+**[9:55]** "We also checked my design choices. Training on hard 0-or-1 labels instead of the soft target drops agreement on an unseen week from **96.6 to 92.5 %**. Tuning the membership functions changes little: it is slightly better on validation and slightly worse on this test week. The least-squares rule outputs do most of the work, and we report that honestly."
 
-**[10:15]** "Finally, I built the **Streamlit dashboard**. It shows live cards for all four controllers, the ANN's prediction against reality, the **ANFIS rules that fired** with their weights, the learned membership functions, and the comparison charts. **Every decision is explained.**"
+**[10:20]** "Finally, I built the **Streamlit dashboard**. It shows live cards for all four controllers, the ANN's prediction against reality, the **ANFIS rules that fired** with their weights, the learned membership functions, and the comparison charts. **Every decision is explained.**"
 
-### 🔁 Handover (10:40)
+### 🔁 Handover (10:35)
 "Darshan will now present how all the controllers performed."
 
 ### ❓ If the reviewer asks you…
@@ -287,9 +315,9 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ---
 
-# PART 5 — Darshan R · Results & conclusion
+# PART 6 — Darshan R · Results & conclusion
 
-⏱️ **10:45 – 12:00 · Slide S12 · about 175 words**
+⏱️ **10:50 – 12:00 · Slide S12 · about 165 words**
 
 ### 🖼️ What goes on your slide
 
@@ -310,9 +338,9 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ### 🗣️ Spoken script
 
-**[10:45]** "To evaluate fairly, every controller runs in a closed loop on **11 unseen weeks**, each with a new random seed, and we compare the paired results with the **Wilcoxon signed-rank test**. Mean agreement with the oracle is 92.5 % for fuzzy, 96.7 for the ANN alone and **96.8 for our hybrid**. Against fuzzy, the hybrid is better in all 11 weeks on agreement, energy and regret, with p about 0.001. Against the ANN alone, the accuracy difference is *not* significant. But the hybrid used **less task energy in all 11 weeks**, about 17 joules per week, and had lower regret, again with p about 0.001."
+**[10:50]** "To evaluate fairly, every controller runs in a closed loop on **11 unseen weeks**, each with a new random seed, and we compare the paired results with the **Wilcoxon signed-rank test**. Mean agreement with the oracle is 92.5 % for fuzzy, 96.7 for the ANN alone and **96.8 for our hybrid**. Against fuzzy, the hybrid is better in all 11 weeks on agreement, energy and regret, with p about 0.001. Against the ANN alone, the accuracy difference is *not* significant. But the hybrid used **less task energy in all 11 weeks**, about 17 joules per week, and had lower regret, again with p about 0.001."
 
-**[11:25]** "So our hybrid is as accurate as the best black box, makes cheaper mistakes, and **explains every decision**. The limitations: the twin is simulated, not yet calibrated on real hardware, and there is no cloud tier. Next we plan hardware calibration, a cloud tier, and running ANFIS on the ESP32 itself. Thank you; we are happy to take your questions."
+**[11:35]** "So our hybrid is as accurate as the best black box, makes cheaper mistakes, and **explains every decision**. The limitations: the twin is simulated, not yet calibrated on real hardware, and there is no cloud tier. Next we plan hardware calibration, a cloud tier, and running ANFIS on the ESP32 itself. Thank you; we are happy to take your questions."
 
 ### ❓ If the reviewer asks you…
 
@@ -326,7 +354,7 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 
 ---
 
-# PART 6 — Team appendix
+# PART 7 — Team appendix
 
 ### 🔢 Numbers every member must know
 
@@ -345,7 +373,7 @@ Darshan speaks twice (1:45 + 1:15 = 3:00). This keeps the talk in data-flow orde
 ### ⏱️ Rehearsal tips
 - Speak at about 140 words per minute: each 3-minute part is about 420 words. Rehearse with a stopwatch, and cut the bracketed time marks if you run late.
 - Use the **handover lines** exactly. They make the four parts sound like one talk.
-- Use one example throughout, **task T09206**. Sanjith can mention it, Rohith predicts it, Vishaanth decides it.
+- Use one example throughout, **task T09206**. Sanjith introduces it, Rohith predicts its cost, Vishaanth's ANFIS decides it.
 - If you show the dashboard live, open `streamlit run streamlit_app.py` **before** the talk: the first load trains the models (a few seconds) and runs the comparison (about 10 seconds).
 - Keep any live demo inside Vishaanth's slot (about 30 seconds on the 🔗 ANFIS tab).
 
